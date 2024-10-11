@@ -6,6 +6,8 @@ import 'package:daelim_project/enums/sso_enum.dart';
 import 'package:daelim_project/extensions/context_extension.dart';
 import 'package:daelim_project/helpers/storage_helper.dart';
 import 'package:daelim_project/models/auth_data.dart';
+import 'package:daelim_project/routes/app_router.dart';
+import 'package:daelim_project/routes/app_screen.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     };
 
     final response = await http.post(
-      Uri.parse(authUrl),
+      Uri.parse(getTokenUrl),
       body: jsonEncode(loginData),
     );
 
@@ -59,6 +61,17 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
       return;
+    } else {
+      var authData = AuthData.fromJson(response.body);
+
+      await StorageHelper.setAuthData(authData);
+
+      final savedAuthData = StorageHelper.authData;
+
+      Log.cyan(response.body);
+      Log.green(savedAuthData);
+
+      mounted ? appRouter.goNamed(AppScreen.main.name) : null;
     }
 
     // NOTE: AuthData 로 변환

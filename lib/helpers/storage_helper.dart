@@ -21,4 +21,9 @@ class StorageHelper {
     final data = _pref!.getString(_authKey);
     return data != null ? AuthData.fromJson(data) : null;
   }
+
+  //AuthData 삭제하기
+  static Future removeAuthData() {
+    return _pref!.remove(_authKey);
+  }
 }
