@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:daelim_project/common/widgets/gradient_divider.dart';
 import 'package:daelim_project/config.dart';
 import 'package:daelim_project/enums/sso_enum.dart';
 import 'package:daelim_project/extensions/context_extension.dart';
+import 'package:daelim_project/helpers/api_helper.dart';
 import 'package:daelim_project/helpers/storage_helper.dart';
-import 'package:daelim_project/models/auth_data.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
@@ -41,36 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final password = _pwController.text;
 
-    final loginData = {
-      'email': email,
-      'password': password,
-    };
-
-    final response = await http.post(
-      Uri.parse(getTokenUrl),
-      body: jsonEncode(loginData),
+    // NOTE: AuthData 로 변환
+    final authData = await ApiHelper.signIn(
+      email: email,
+      password: password,
     );
 
-    final statusCode = response.statusCode;
-    final body = utf8.decode(response.bodyBytes);
-
-    if (statusCode != 200) {
+    if (authData == null) {
       if (mounted) {
         context.showSnackBar(
-          content: Text(body),
+          content: const Text('로그인을 실패했습니다.'),
         );
       }
       return;
     }
 
-    // NOTE: AuthData 로 변환
-    final authData = AuthData.fromMap(jsonDecode(body));
     await StorageHelper.setAuthData(authData);
-    final savedAuthData = StorageHelper.authData;
 
     // TODO: 화면 이동
-    Log.green(savedAuthData);
-
     if (mounted) context.goNamed(AppScreen.users.name);
   }
 
