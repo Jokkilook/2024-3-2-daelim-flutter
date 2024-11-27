@@ -18,6 +18,7 @@ class Config {
     setProfileImage: '$_baseFunctionUrl/auth/set-profile-image',
     changePassword: '$_baseFunctionUrl/auth/reset-password',
     getUserList: '$_baseFunctionUrl/users',
+    createRoom: '$_baseFunctionUrl/chat/room/create',
   );
 
   static const storage = ();

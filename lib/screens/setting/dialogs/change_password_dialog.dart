@@ -1,10 +1,8 @@
 import 'package:daelim_project/extensions/context_extension.dart';
 import 'package:daelim_project/helpers/api_helper.dart';
 import 'package:daelim_project/helpers/storage_helper.dart';
-import 'package:daelim_project/routes/app_screen.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class ChangePasswordDialog extends StatefulWidget {
   const ChangePasswordDialog({super.key});
@@ -86,14 +84,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     }
 
     // NOTE: 비밀번호 변경 성공
-    await StorageHelper.removeAuthData();
 
-    if (mounted) {
-      context.showSnackBarText(
-        '비밀번호를 변경했습니다. 다시 로그인해주세요.',
-      );
-      context.goNamed(AppScreen.login.name);
-    }
+    if (!mounted) return;
+
+    ApiHelper.signOut(context);
   }
 
   // NOTE: 비밀번호 입력 위젯
