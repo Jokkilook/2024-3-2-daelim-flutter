@@ -1,11 +1,12 @@
-import 'package:daelim_project/api_error.dart';
 import 'package:daelim_project/common/scaffold/app_scaffold.dart';
+import 'package:daelim_project/extensions/context_extension.dart';
 import 'package:daelim_project/helpers/api_helper.dart';
 import 'package:daelim_project/models/user_data.dart';
 import 'package:daelim_project/routes/app_screen.dart';
 import 'package:daelim_project/screens/users/widgets/user_item.dart';
 import 'package:easy_extension/easy_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -58,22 +59,29 @@ class _UsersScreenState extends State<UsersScreen> {
   Future<void> _onCreateRoom(UserData user) async {
     Log.green('채팅방 개설: ${user.name}');
 
-    final (code, error) = await ApiHelper.createChatRoom(user.id);
+    final (code, roomId) = await ApiHelper.createChatRoom(user.id);
 
-    Log.green({'Code': code, 'Error': error});
-
-    if (code == ApiError.createChatRoom.success) {
-      // TODO: 채팅방 개설 완료
-    } else if (code == ApiError.createChatRoom.requiredUserId) {
-      // TODO: 상대방 ID 필수
-    } else if (code == ApiError.createChatRoom.cannotMySelf) {
-      // TODO: 자기 자신
-    } else if (code == ApiError.createChatRoom.notFound) {
-      // TODO: 상대방 없음
-    } else if (code == ApiError.createChatRoom.onlyCanChatbot) {
-      // TODO: 오직 챗봇만
-    } else if (code == ApiError.createChatRoom.alreadyRoom) {
-      // TODO: 이미 생성됨
+    switch (code) {
+      case 200:
+        Log.green('채팅방 개설 완료: $roomId');
+        break;
+      case 1001:
+        return context.showSnackBarText('상대방 ID는 필수입니다.');
+      case 1002:
+        return context.showSnackBarText('자신과 대화할 수 없습니다.');
+      case 1003:
+        return context.showSnackBarText('상대방 검색에 실패했습니다.');
+      case 1004:
+        return context.showSnackBarText('챗봇만 대화가 가능합니다.');
+      case 1005:
+        Log.green('채팅방 이미 개설되어 있음: $roomId');
+        context.pushNamed(
+          AppScreen.chat.name,
+          pathParameters: {'roomId': roomId},
+        );
+        break;
+      default:
+        break;
     }
   }
 
